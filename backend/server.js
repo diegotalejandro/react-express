@@ -3,7 +3,9 @@ let mongoose = require('mongoose');
 let cors = require('cors');
 let bodyParser = require('body-parser');
 let dbConfig = require('./database/db');
-var createError = require('http-errors')
+var createError = require('http-errors');
+var sassMiddleware = require("node-sass-middleware");
+var path = require("path");
 
 // Express Route
 const studentRoute = require('../backend/routes/student.route')
@@ -45,3 +47,17 @@ app.use(function (err, req, res, next) {
   if (!err.statusCode) err.statusCode = 500;
   res.status(err.statusCode).send(err.message);
 });
+
+app.use(
+  sassMiddleware({
+    /* Options */
+    src: __dirname,
+    dest: path.join(__dirname, "public"),
+    debug: true,
+    outputStyle: "compressed",
+    prefix: "/prefix" // Where prefix is at <link rel="stylesheets" href="prefix/style.css"/>
+  })
+);
+// Note: you must place sass-middleware *before* `express.static` or else it will
+// not work.
+app.use("/public", express.static(path.join(__dirname, "public")));
